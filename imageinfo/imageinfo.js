@@ -59,9 +59,8 @@ if (!window.BlobBuilder && window.WebKitBlobBuilder) {
 				if (this.conf.useAjax){
 					this.loadFile(url, function(){
 						var xhr = this;
-						var tags = {};
 						var mime = xhr.getResponseHeader('Content-type')
-						tags["mimeType"] = mime;
+						_this.tags["mimeType"] = mime;
 
 						var blobBuilder = new BlobBuilder();
 
@@ -70,19 +69,19 @@ if (!window.BlobBuilder && window.WebKitBlobBuilder) {
 						blobBuilder.append(xhr.response);
 
 						var blob = blobBuilder.getBlob(mime.split(";")[0]);
-						tags["blob"] = blob;
-						tags["byteSize"] = blob.size;
-						tags["url"] = url;
+						_this.tags["blob"] = blob;
+						_this.tags["byteSize"] = blob.size;
+						_this.tags["url"] = url;
 						var fs = new FileReader();
 						fs.onload = (function(self) {
 							return function(e) {
 									var data_url = e.target.result 
-									tags['dataURL'] = data_url;
-									self.setImage(data_url);
-									callback(tags);
+									_this.tags['dataURL'] = data_url;
+									self.setImage(data_url, callback);
+									//callback(tags);
 						        };
 						})(_this);
-						tags["dataURL"] = fs.readAsDataURL(blob);
+						_this.tags["dataURL"] = fs.readAsDataURL(blob);
 
 					});
 				}else{ //theoretical faster and easier approach...NOT TESTED
@@ -168,10 +167,20 @@ if (!window.BlobBuilder && window.WebKitBlobBuilder) {
 				this.colorMap = evt.data.colorMap;
 				this.colorIndex = evt.data.colorIndex;
 				this.imageData = evt.data.imageData;
-			}
+			},
+			
 	
 		};
 	};
+	//Helper
+	window.ImageHelper = {
+		getAspectResize: function(w, h, new_w){
+			var ratio = w / h;
+		    var new_h = new_w / ratio;
+		    
+			return { w: Math.ceil(new_w), h: Math.ceil(new_h) };
+		}
+	}
 
 })();
 

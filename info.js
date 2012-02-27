@@ -18,13 +18,26 @@ var isEmpty = function(obj) {
 		}
 		return true;
 	};
+	
 
+Element.prototype.delegate = function (eventType,  delegateTo, callbackFn) {
+	var elementToBind = this ;
+    elementToBind.addEventListener(eventType, function(evt){
+      // again this is very primitive and lets you 
+      // to operate only on tag selectors
+      if(evt.target.nodeName.toLowerCase() === delegateTo.toLowerCase()) {
+        // call callbackFn in context of evt.target with proper arguments
+        callbackFn.call(evt.target, evt);
+      }
+    }, false);
+}
 var ImageInfoPlus = function(imageInfo) {
 	this.imageInfo = imageInfo;
 	this.renderCells = function(cells, data) {
 		for (var i = 0; i < cells.length; i++) {
 			var cell = cells[i];
 			var key = cell.innerText;
+
 			if (data[key]) {
 				cell.innerText = data[key];
 				cell.parentElement.className = "rendered";
@@ -84,7 +97,9 @@ var ImageInfoPlus = function(imageInfo) {
 				sect.className="loading";
 				window.setTimeout(function(){
 					_this.imageInfo.setColorMap(_this.renderColorMap, _this);
-				}, 0)
+				}, 0);
+				var info = document.getElementById("output");
+				output.className = "colormapper";
 			}
 			
 		})
@@ -102,17 +117,35 @@ var ImageInfoPlus = function(imageInfo) {
 		color_keys.forEach(function( val, idx, arr ){
 			var cell = document.createElement("div");
 			cell.className = "cell";
-			console.log(val);
-			cell.style.backgroundColor = "rgba("+val+")";
+			//console.log(val);
+			var c = "rgba("+val+")"
+			cell.style.backgroundColor = c;
+			cell.title = val;
+			
 			fragment.appendChild(cell);
 		})
 		map.appendChild(fragment);
+		
+		map.delegate("click", "div", function(evt){
+			alert(this.title);
+		});
+		
 		window.setTimeout(function(){
 			sect.className = "loaded";
 		}, 50);
 		this.resizeWindow();
 	}
-	
+	this.resizeViewer = function(img){
+		var w = img.width;
+		var h = img.height;
+		var viewer =  document.getElementById("viewer");
+		viewer.style.height = h+"px";
+		var sizer = document.getElementById('current-size');
+		sizer.innerHTML = w+" x "+h;
+		var overlay = document.getElementById('overlay');
+		overlay.width = w;
+		overlay.height= h;
+	}
 	/**
 	* Renders a thumbnail view of the image.
 	*/
@@ -120,6 +153,12 @@ var ImageInfoPlus = function(imageInfo) {
 		var thumbnail = document.getElementById("thumbnail");
 
 		var _this = this;
+		thumbnail.addEventListener('load', function(e){
+			_this.resizeViewer(this);
+		})
+		window.addEventListener('resize', function(e){
+			_this.resizeViewer(document.getElementById("thumbnail"));
+		})
 		if(thumbnail){ thumbnail.src = tags.dataURL; }
 		
 	};
