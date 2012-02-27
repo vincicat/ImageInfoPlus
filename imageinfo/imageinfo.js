@@ -22,6 +22,7 @@ if (!window.BlobBuilder && window.WebKitBlobBuilder) {
 			context: null,
 			colorMap: {},
 			colorIndex : [],
+			imageData: null,
 			conf: { useWorker: true, useAjax: true },
 			url: '',
 			loadInfo : function(url, cb) {
@@ -166,7 +167,7 @@ if (!window.BlobBuilder && window.WebKitBlobBuilder) {
 			onMessage: function(evt){ //Process web worker data, as they work as "call by copy", not "call by reference" (Sandboxing)
 				this.colorMap = evt.data.colorMap;
 				this.colorIndex = evt.data.colorIndex;
-				this.imageData = evt.data.imageData;
+				//this.imageData = evt.data.imageData;
 			},
 			
 	

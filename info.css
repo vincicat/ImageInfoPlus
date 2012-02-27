@@ -85,7 +85,7 @@ header h1:before {
 	background: url(loader.gif) center right no-repeat;
 	padding-right: 20px;
 }
-#fileinfo:target {
+#output.colormapper #fileinfo:target {
 	display: table;
 }
 #info-link {

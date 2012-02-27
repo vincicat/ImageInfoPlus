@@ -125,16 +125,47 @@ var ImageInfoPlus = function(imageInfo) {
 			fragment.appendChild(cell);
 		})
 		map.appendChild(fragment);
-		
+		var _this = this;
 		map.delegate("click", "div", function(evt){
-			alert(this.title);
+			var key = this.title;
+			var indexes = _this.imageInfo.colorMap[key];
+			_this.renderOverlay(indexes)
 		});
 		
 		window.setTimeout(function(){
 			sect.className = "loaded";
 		}, 50);
 		this.resizeWindow();
-	}
+	};
+	
+	this.renderOverlay = function(indexes){
+		var imageData = this.imageInfo.imageData;
+		var data = imageData.data;
+		var w = imageData.width;
+		var h = imageData.height;
+		var overlay = document.getElementById("overlay");
+		var o_w = overlay.width, o_h = overlay.height;
+		var ctx = overlay.getContext("2d");
+		ctx.clearRect(0,0,overlay.width, overlay.height);
+		overlay.width = w;
+		overlay.height = h;
+		ctx.putImageData(imageData, 0, 0);
+		var cdata = ctx.getImageData(0, 0, imageData.width, imageData.height);
+		var len = indexes.length;
+		console.log("Indexes",len);
+		for (var i = 0; i < len; i++){
+			var idx =  indexes[i];
+			//if (i == len-1){ console.log(i, cdata.data[idx]); }
+			cdata.data[idx] = 255;
+			cdata.data[idx+1] = 0;
+			cdata.data[idx+1] = 0;
+		}
+		ctx.putImageData(cdata, 0, 0);
+		//overlay.width = o_w;
+		//overlay.height = o_h;
+		//console.log("compare",cdata.data[indexes[len-1]], imageData.data[indexes[len-1]]);
+	};
+	
 	this.resizeViewer = function(img){
 		var w = img.width;
 		var h = img.height;
