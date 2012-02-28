@@ -11,7 +11,9 @@ function getClickHandler() {
     var url = ImageInfoLoader.url.main + '?src=' +  encodeURIComponent(info.srcUrl);
 
     // Create a new window to the info page. must use listed parameter
-    chrome.windows.create({ url: url, width: ImageInfoLoader.conf.width || 520, height: ImageInfoLoader.conf.height || 660 });
+	var w = ImageInfoLoader.conf.width ?  ImageInfoLoader.conf.width : 520;
+	var h = ImageInfoLoader.conf.height ? ImageInfoLoader.conf.height : 660
+    chrome.windows.create({ url: url, width: w, height: h  });
   };
 };
 

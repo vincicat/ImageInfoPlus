@@ -3,7 +3,7 @@ var ImageInfoLoader = {
 		'main': 'main.html'
 	},
 	conf: {
-		width: 520,
+		width: 420,
 		height: 660
 	}
 };

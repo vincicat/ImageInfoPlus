@@ -47,6 +47,8 @@ Element.prototype.delegate = function (eventType,  delegateTo, callbackFn) {
 }
 var ImageInfoPlus = function(imageInfo) {
 	this.imageInfo = imageInfo;
+	this.cover = null;
+	
 	this.renderCells = function(cells, data) {
 		for (var i = 0; i < cells.length; i++) {
 			var cell = cells[i];
@@ -156,14 +158,17 @@ var ImageInfoPlus = function(imageInfo) {
 		var w = imageData.width;
 		var h = imageData.height;
 		var overlay = document.getElementById("overlay");
-		var o_w = overlay.width, o_h = overlay.height;
+		var cover = this.cover;
 		var ctx = overlay.getContext("2d");
-		ctx.canvas.width = w;
-		ctx.canvas.height = h;
-		ctx.clearRect(0,0, w, h);
-		var coverData = ctx.createImageData(w,h);
-		ctx.putImageData(coverData, 0, 0);
-		var overlay = ctx.getImageData(0, 0, w, h);
+		var ctx2 = cover.getContext("2d");
+		
+		ctx2.canvas.width = w;
+		ctx2.canvas.height = h;
+		
+		var coverData = ctx2.createImageData(w,h);
+		//ctx.putImageData(coverData, 0, 0);
+		//var overlay = ctx.getImageData(0, 0, w, h);
+		overlay = coverData;
 		var len = indexes.length;
 		for (var i = 0; i < len; i++){
 		    var idx =  indexes[i];
@@ -173,26 +178,46 @@ var ImageInfoPlus = function(imageInfo) {
 		    overlay.data[idx+2] = 0;
 			overlay.data[idx+3] = 200;
 		}
-		ctx.putImageData(overlay , 0, 0);
+
+		ctx2.putImageData(overlay , 0, 0);
+		
+		var view = document.getElementById("viewer");
+		var o_w = view.offsetWidth;
+		var o_h = view.offsetHeight;
+		ctx.canvas.width = o_w;
+		ctx.canvas.height = o_h;
+		ctx.clearRect(0,0, o_w, o_h);
+		ctx.drawImage(cover, 0 ,0, o_w, o_h)
 	};
+	
+	this.renderOverlayByWorker = function(indexes){
+		
+	}
 	
 	this.resizeViewer = function(img){
 		var w = img.width;
 		var h = img.height;
 		var viewer =  document.getElementById("viewer");
-		viewer.style.height = h+"px";
+		var _w = viewer.offsetWidth
+		var scale = _w / w;
+		var _h = Math.ceil(h * scale);
+		viewer.style.height = _h+"px";
 		var sizer = document.getElementById('current-size');
-		sizer.innerHTML = w+" x "+h;
+		sizer.innerHTML = _w +" x "+ _h;
 		var overlay = document.getElementById('overlay');
-		overlay.width = w;
-		overlay.height= h;
+		overlay.width = _w;
+		overlay.height= _h;
+		var cover = document.createElement("canvas");
+		cover.width = w;
+		cover.height = h;
+		this.cover = cover;
 	}
 	/**
 	* Renders a thumbnail view of the image.
 	*/
 	this.renderThumbnail = function(tags) {
 		var thumbnail = document.getElementById("thumbnail");
-
+		
 		var _this = this;
 		thumbnail.addEventListener('load', function(e){
 			_this.resizeViewer(this);
@@ -222,6 +247,7 @@ var ImageInfoPlus = function(imageInfo) {
 	};
 	this.init = function(url){
 		this.url = url;
+		
 		return this.getImageInfoHandler(url);
 	};
 	return this;

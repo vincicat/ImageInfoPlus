@@ -116,3 +116,6 @@ header h1:before {
 	color: #fff;
 	padding:4px;
 }
+#undercover {
+	display:none;
+}
