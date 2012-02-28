@@ -45,10 +45,12 @@ Element.prototype.delegate = function (eventType,  delegateTo, callbackFn) {
       }
     }, false);
 }
-var ImageInfoPlus = function(imageInfo) {
+var ImageInfoPlus = function(imageInfo, options) {
 	this.imageInfo = imageInfo;
 	this.cover = null;
-	
+	this.options = {
+		useWorkerRenderer:true
+	};
 	this.renderCells = function(cells, data) {
 		for (var i = 0; i < cells.length; i++) {
 			var cell = cells[i];
@@ -191,9 +193,44 @@ var ImageInfoPlus = function(imageInfo) {
 	};
 	
 	this.renderOverlayByWorker = function(indexes){
+
+		var imageData = this.imageInfo.imageData;
+		var data = imageData.data;
+		var w = imageData.width;
+		var h = imageData.height;
+		var overlay = document.getElementById("overlay");
+		var cover = this.cover;
+		var ctx = overlay.getContext("2d");
+		var ctx2 = cover.getContext("2d");
 		
+		ctx2.canvas.width = w;
+		ctx2.canvas.height = h;
+		
+		var coverData = ctx2.createImageData(w,h);
+		
+		var worker = new Worker('/lib/worker.overlay.js');
+
+		var messageCall = function(evt){
+			var overlay = evt.data.overlayData;
+			ctx2.putImageData(overlay , 0, 0);
+
+			var view = document.getElementById("viewer");
+			var o_w = view.offsetWidth;
+			var o_h = view.offsetHeight;
+			ctx.canvas.width = o_w;
+			ctx.canvas.height = o_h;
+			ctx.clearRect(0,0, o_w, o_h);
+			ctx.drawImage(cover, 0 ,0, o_w, o_h)
+		};
+		worker.addEventListener('message', messageCall.bind(this), false);
+
+		worker.postMessage({ 
+//		    'imageData': imageData,
+			'overlayData': coverData,
+			'indexes': indexes
+		});
 	}
-	
+
 	this.resizeViewer = function(img){
 		var w = img.width;
 		var h = img.height;
@@ -250,6 +287,10 @@ var ImageInfoPlus = function(imageInfo) {
 		
 		return this.getImageInfoHandler(url);
 	};
+	if (this.options.useWorkerRenderer){
+		console.log("Renderer: Worker")
+		this.renderOverlay = this.renderOverlayByWorker;
+	}
 	return this;
 };
 /**
