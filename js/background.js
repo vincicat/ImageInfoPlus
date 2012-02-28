@@ -7,12 +7,11 @@
  */
 function getClickHandler() {
   return function(info, tab) {
-
     // The srcUrl property is only available for image elements.
-    var url = 'info.html#' + info.srcUrl;
+    var url = ImageInfoLoader.url.main + '?src=' +  encodeURIComponent(info.srcUrl);
 
-    // Create a new window to the info page.
-    chrome.windows.create({ url: url, width: 520, height: 660 });
+    // Create a new window to the info page. must use listed parameter
+    chrome.windows.create({ url: url, width: ImageInfoLoader.conf.width || 520, height: ImageInfoLoader.conf.height || 660 });
   };
 };
 

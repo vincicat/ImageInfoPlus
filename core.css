@@ -41,12 +41,12 @@ tr.rendered:nth-child(odd) {
 #fileinfo {
 	clear:both;
 }
-header { margin-bottom: 20px; overflow:hidden; }
+header { margin-bottom: 20px; }
 header h1{
 	width:100%;
 }
 header h1:before {
-	content: url(imageinfo-19.png);
+	content: url(../images/imageinfo-19.png);
 }
 #viewer {
 	box-shadow: 1px 1px 6px #000;
@@ -62,8 +62,6 @@ header h1:before {
 #overlay {
 	position: absolute;
 	top:0; left:0;
-	width:100%;
-	height:100%;
 }
 #loader {
 	font: 30px Arial;
@@ -82,7 +80,7 @@ header h1:before {
 	cursor:pointer;
 }
 #color.loading #colormap-link {
-	background: url(loader.gif) center right no-repeat;
+	background: url(../images/loader.gif) center right no-repeat;
 	padding-right: 20px;
 }
 #output.colormapper #fileinfo:target {

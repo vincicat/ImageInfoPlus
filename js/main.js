@@ -19,7 +19,21 @@ var isEmpty = function(obj) {
 		return true;
 	};
 	
-
+var getParams = function(url){
+	var param = window.location.href.split('#')[0].split("?");
+	var paramComponents = [];
+	var params = {};
+	if(param.length === 2){
+		paramComponents = param[1].split("&")
+		paramComponents.forEach(function(val,idx){
+			var pair = val.split("=");
+			if(pair.length == 2){
+				params[pair[0]] = pair[1];
+			}
+		})
+	}
+	return params;
+}
 Element.prototype.delegate = function (eventType,  delegateTo, callbackFn) {
 	var elementToBind = this ;
     elementToBind.addEventListener(eventType, function(evt){
@@ -65,8 +79,6 @@ var ImageInfoPlus = function(imageInfo) {
 	* image. Outputs image data to the DOM.
 	*/
 	this.renderImageInfo = function(imageinfo) {
-		console.log('imageinfo', imageinfo);
-
 		var divloader = document.querySelector('#loader');
 		var divoutput = document.querySelector('#output');
 		divloader.style.display = "none";
@@ -146,24 +158,22 @@ var ImageInfoPlus = function(imageInfo) {
 		var overlay = document.getElementById("overlay");
 		var o_w = overlay.width, o_h = overlay.height;
 		var ctx = overlay.getContext("2d");
-		ctx.clearRect(0,0,overlay.width, overlay.height);
-		overlay.width = w;
-		overlay.height = h;
-		ctx.putImageData(imageData, 0, 0);
-		var cdata = ctx.getImageData(0, 0, imageData.width, imageData.height);
+		ctx.canvas.width = w;
+		ctx.canvas.height = h;
+		ctx.clearRect(0,0, w, h);
+		var coverData = ctx.createImageData(w,h);
+		ctx.putImageData(coverData, 0, 0);
+		var overlay = ctx.getImageData(0, 0, w, h);
 		var len = indexes.length;
-		console.log("Indexes",len);
 		for (var i = 0; i < len; i++){
-			var idx =  indexes[i];
-			//if (i == len-1){ console.log(i, cdata.data[idx]); }
-			cdata.data[idx] = 255;
-			cdata.data[idx+1] = 0;
-			cdata.data[idx+1] = 0;
+		    var idx =  indexes[i];
+		    //if (i == len-1){ console.log(i, cdata.data[idx]); }
+		    overlay.data[idx] = 255;
+		    overlay.data[idx+1] = 0;
+		    overlay.data[idx+2] = 0;
+			overlay.data[idx+3] = 200;
 		}
-		ctx.putImageData(cdata, 0, 0);
-		//overlay.width = o_w;
-		//overlay.height = o_h;
-		//console.log("compare",cdata.data[indexes[len-1]], imageData.data[indexes[len-1]]);
+		ctx.putImageData(overlay , 0, 0);
 	};
 	
 	this.resizeViewer = function(img){
@@ -190,7 +200,7 @@ var ImageInfoPlus = function(imageInfo) {
 		window.addEventListener('resize', function(e){
 			_this.resizeViewer(document.getElementById("thumbnail"));
 		})
-		if(thumbnail){ thumbnail.src = tags.dataURL; }
+		if(thumbnail){ thumbnail.src = tags.src; }
 		
 	};
 
@@ -221,7 +231,9 @@ var ImageInfoPlus = function(imageInfo) {
 */
 document.addEventListener("DOMContentLoaded", function () {
 	// The URL of the image to load is passed on the URL fragment.
-	var imageUrl = window.location.hash.substring(1);
+	var params = getParams();
+	var imageUrl =  decodeURIComponent(params["src"]);
+
 	var info = new ImageInfo();
 	window.app = new ImageInfoPlus(info);
 	if (imageUrl) {

@@ -11,9 +11,9 @@
    ],
   "minimum_chrome_version" : "12.0.0.0",
   "icons" : {
-    "16" : "imageinfo-16.png",
-    "48" : "imageinfo-48.png",
-    "128" : "imageinfo-128.png"
+    "16" : "images/imageinfo-16.png",
+    "48" : "images/imageinfo-48.png",
+    "128" : "images/imageinfo-128.png"
   },
   "content_security_policy": "default-src 'self'; connect-src *; img-src *"
 
